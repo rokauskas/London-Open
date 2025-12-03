@@ -132,6 +132,7 @@ dmypy.json
 # Generated analysis outputs
 momentum_moves_charts/
 data/*.csv
+data/*.xlsx
 *.png
 *.csv
 
