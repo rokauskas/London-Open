@@ -59,7 +59,14 @@ London-Open/
    # Edit with your bot_token and chat_id
    ```
 
-5. **Run analysis**:
+5. **Configure MongoDB (optional)**:
+   ```bash
+   cp etc/mongodb_config.json.template etc/mongodb_config.json
+   # Edit with your connection_string and database name
+   # Ensure your IP is whitelisted in Azure Cosmos DB firewall
+   ```
+
+6. **Run analysis**:
    ```bash
    python bin/analyze_london_open.py
    ```
@@ -67,6 +74,15 @@ London-Open/
 ## Usage
 
 ```bash
+# DAX Data Pipeline (download + MongoDB + analysis)
+python bin/dax_data_pipeline.py --date 2025-12-03
+
+# Download and store without analysis
+python bin/dax_data_pipeline.py --skip-analysis
+
+# Analyze existing data from MongoDB
+python bin/dax_data_pipeline.py --analyze-only
+
 # Run analysis on latest CSV
 python bin/analyze_london_open.py
 

@@ -13,3 +13,9 @@ scipy>=1.9
 
 # Telegram integration
 requests>=2.31
+
+# MongoDB integration
+pymongo>=4.6
+
+# Financial data
+yfinance>=0.2.30

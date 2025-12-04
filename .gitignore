@@ -14,8 +14,9 @@ dist/
 venv/
 ENV/
 
-# Telegram credentials (NEVER commit!)
+# Sensitive credentials (NEVER commit!)
 etc/telegram_config.json
+etc/mongodb_config.json
 
 # Output data
 var/
