@@ -55,7 +55,7 @@ def check_uncommitted_changes(repo_path=None):
         
         return False, ""
     
-    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
+    except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.SubprocessError, OSError):
         # Git not available or command failed
         return False, ""
 
@@ -76,13 +76,14 @@ def prompt_proceed_with_uncommitted_changes(changes_description):
     print("\nThe following files have uncommitted changes:\n")
     
     # Parse and display changes in a user-friendly format
-    lines = changes_description.split('\n')
-    for line in lines[:10]:  # Show first 10 files
-        if line.strip():
-            print(f"  {line}")
+    lines = [line for line in changes_description.split('\n') if line.strip()]
+    display_count = min(10, len(lines))
     
-    if len(lines) > 10:
-        print(f"  ... and {len(lines) - 10} more file(s)")
+    for line in lines[:display_count]:
+        print(f"  {line}")
+    
+    if len(lines) > display_count:
+        print(f"  ... and {len(lines) - display_count} more file(s)")
     
     print("\nRunning the pipeline may generate new files or modify existing ones.")
     print("It's recommended to commit or stash your changes first.")
