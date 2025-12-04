@@ -89,8 +89,22 @@ python bin/analyze_london_open.py
 # Clean output before running
 python bin/analyze_london_open.py --clean-output
 
+# Force execution (skip uncommitted changes check)
+python bin/analyze_london_open.py --force
+python bin/dax_data_pipeline.py --force
+
 # Send Telegram notification
 python bin/send_telegram_notification.py
+```
+
+### Safety Features
+
+Both `analyze_london_open.py` and `dax_data_pipeline.py` automatically check for uncommitted changes in the git repository before running. If uncommitted changes are detected, you'll be prompted to proceed or abort. This prevents accidental data overwrites.
+
+To skip this check, use the `--force` flag:
+```bash
+python bin/analyze_london_open.py --force
+python bin/dax_data_pipeline.py --force
 ```
 
 ## Output
