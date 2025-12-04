@@ -236,10 +236,23 @@ Setup:
 - Node.js 18+ ([Download](https://nodejs.org/))
 - dukascopy-node (installed via `npm install`)
 
+## Examples
+
+See the [examples/](examples/) directory for complete workflow demonstrations:
+
+```bash
+# Download and analyze yesterday's data
+./examples/download_and_analyze.sh
+
+# Download and analyze a specific date
+./examples/download_and_analyze.sh 2025-01-02
+```
+
 ## Documentation
 
 - **[SETUP_DUKASCOPY.md](SETUP_DUKASCOPY.md)** - Complete setup guide for Dukascopy data downloader
 - **[MIGRATION.md](MIGRATION.md)** - Migration guide from yfinance to Dukascopy
+- **[examples/README.md](examples/README.md)** - Example scripts and workflows
 - **[README.md](README.md)** - This file (project overview and quick start)
 
 ## Testing
