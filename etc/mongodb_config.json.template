@@ -1,0 +1,11 @@
+{
+  "_comment": "MongoDB Configuration Template - Copy to mongodb_config.json and add your credentials",
+  "_instructions": "1. Copy this file to 'mongodb_config.json' in the same folder, 2. Add your MongoDB connection string",
+  "connection_string": "mongodb+srv://username:password@host/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000",
+  "database": "dax_trading",
+  "collections": {
+    "ohlc_data": "ohlc_5min",
+    "pattern_analysis": "patterns",
+    "session_summary": "sessions"
+  }
+}

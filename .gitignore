@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.Python
+build/
+dist/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Sensitive credentials (NEVER commit!)
+etc/telegram_config.json
+etc/mongodb_config.json
+
+# Output data
+var/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -1,0 +1,11 @@
+{
+    "robust":  true,
+    "data_dir":  "var/input",
+    "min_speed":  0,
+    "min_abs":  0,
+    "gap":  0,
+    "same_sign":  1,
+    "window":  3,
+    "min_ticks":  1,
+    "out":  "output"
+}
