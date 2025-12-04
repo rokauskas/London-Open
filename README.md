@@ -2,6 +2,9 @@
 
 Advanced trading analysis tool for DAX futures during London Open session (08:00-10:00 UTC).
 
+> **📚 New to Dukascopy?** See [SETUP_DUKASCOPY.md](SETUP_DUKASCOPY.md) for detailed setup instructions.  
+> **🔄 Migrating from yfinance?** See [MIGRATION.md](MIGRATION.md) for migration guide.
+
 ## Features
 
 - **Dukascopy Data Integration**: High-quality historical data via [dukascopy-node](https://github.com/Leo4815162342/dukascopy-node)
@@ -232,6 +235,19 @@ Setup:
 ### Node.js Requirements
 - Node.js 18+ ([Download](https://nodejs.org/))
 - dukascopy-node (installed via `npm install`)
+
+## Documentation
+
+- **[SETUP_DUKASCOPY.md](SETUP_DUKASCOPY.md)** - Complete setup guide for Dukascopy data downloader
+- **[MIGRATION.md](MIGRATION.md)** - Migration guide from yfinance to Dukascopy
+- **[README.md](README.md)** - This file (project overview and quick start)
+
+## Testing
+
+Test the Dukascopy integration:
+```bash
+./bin/test_dukascopy.sh
+```
 
 ## License
 
