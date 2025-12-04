@@ -38,6 +38,9 @@ except ImportError:
     print("Install with: pip install pymongo pandas")
     sys.exit(1)
 
+# Configuration constants
+DOWNLOAD_TIMEOUT_SECONDS = 120  # 2 minute timeout for data downloads
+
 
 def load_mongodb_config():
     """
@@ -189,7 +192,7 @@ def download_dax_data_dukascopy(date_str, interval='5m'):
             cmd,
             capture_output=True,
             text=True,
-            timeout=120  # 2 minute timeout
+            timeout=DOWNLOAD_TIMEOUT_SECONDS
         )
         
         if result.returncode != 0:

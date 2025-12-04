@@ -51,7 +51,8 @@ for month in {01..12}; do
     
     echo ""
     
-    # Small delay to be nice to the API
+    # Small delay between requests to avoid overwhelming the API
+    # Dukascopy has no official rate limits, but being respectful helps maintain access
     sleep 2
 done
 

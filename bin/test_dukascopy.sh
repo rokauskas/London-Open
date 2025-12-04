@@ -107,7 +107,10 @@ else
     echo "- The date is a weekend/holiday (no trading data)"
     echo "- Dukascopy server is temporarily unavailable"
     echo ""
-    echo "Try running manually with a known trading day:"
-    echo "  node bin/download_dukascopy_data.js --date 2024-12-02 --timeframe m5 --output test.json"
+    echo "Try running manually with a known trading day (use a recent weekday):"
+    echo "  node bin/download_dukascopy_data.js --date YYYY-MM-DD --timeframe m5 --output test.json"
+    echo ""
+    echo "Example for testing (adjust date to a recent weekday):"
+    echo "  node bin/download_dukascopy_data.js --date $(date -d '2 weeks ago' +%Y-%m-%d 2>/dev/null || date -v-2w +%Y-%m-%d) --timeframe m5 --output test.json"
     exit 1
 fi

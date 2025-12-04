@@ -17,6 +17,8 @@
  *   --instrument: Dukascopy instrument code - default: deuidxeur (DAX)
  *   --format: Output format (json, csv) - default: json
  *   --output: Output file path (optional)
+ * 
+ * Note: Uses 'ignoreFlats: false' to include all data points, even when price doesn't change
  */
 
 const { getHistoricalRates } = require('dukascopy-node');
