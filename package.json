@@ -1,0 +1,28 @@
+{
+  "name": "london-open",
+  "version": "1.0.0",
+  "description": "Advanced trading analysis tool for DAX futures during London Open session (08:00-10:00 UTC).",
+  "main": "bin/download_dukascopy_data.js",
+  "scripts": {
+    "download": "node bin/download_dukascopy_data.js",
+    "download-year": "./bin/download_year_data.sh",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "dax",
+    "trading",
+    "forex",
+    "dukascopy",
+    "market-data",
+    "financial-data",
+    "london-open"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "dukascopy-node": "^1.45.1"
+  }
+}

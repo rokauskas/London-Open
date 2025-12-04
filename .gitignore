@@ -14,6 +14,10 @@ dist/
 venv/
 ENV/
 
+# Node.js
+node_modules/
+package-lock.json
+
 # Sensitive credentials (NEVER commit!)
 etc/telegram_config.json
 etc/mongodb_config.json

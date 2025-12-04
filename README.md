@@ -4,6 +4,7 @@ Advanced trading analysis tool for DAX futures during London Open session (08:00
 
 ## Features
 
+- **Dukascopy Data Integration**: High-quality historical data via [dukascopy-node](https://github.com/Leo4815162342/dukascopy-node)
 - **CSV Import**: Auto-detects and imports CSV files with OHLC + Volume data
 - **London Open Focus**: Analyzes the critical 08:00-10:00 UTC timeframe
 - **VWAP Calculation**: Volume-weighted average price from actual volume data
@@ -13,6 +14,7 @@ Advanced trading analysis tool for DAX futures during London Open session (08:00
 - **Detailed Visualizations**: ~10-15 high-quality charts per session
 - **Telegram Integration**: Automatic notifications with chart and analysis
 - **Candlestick Charts**: Proper OHLC visualization with timestamps
+- **MongoDB Storage**: Optional database integration for historical data management
 
 ## Project Structure
 
@@ -43,35 +45,67 @@ London-Open/
    # source .venv/bin/activate  # Linux/Mac
    ```
 
-2. **Install dependencies**:
+2. **Install Python dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Place CSV file in `var/input/`**
-   - Required: OHLC + Volume data
-   - Columns: `Local`, `Open`, `High`, `Low`, `Close`, `Volume`
-   - Format: Second-level data recommended
+3. **Install Node.js dependencies** (for Dukascopy data downloader):
+   ```bash
+   npm install
+   ```
+   
+   > **Note**: Node.js 18+ is required. Download from [nodejs.org](https://nodejs.org/)
 
-4. **Configure Telegram (optional)**:
+4. **Download DAX data using Dukascopy**:
+   ```bash
+   # Download data for a specific date
+   node bin/download_dukascopy_data.js --date 2025-01-02 --timeframe m5 --output var/input/dax_data.json
+   
+   # Download a full year (recommended)
+   ./bin/download_year_data.sh 2025
+   
+   # Merge monthly files into one
+   python bin/merge_dukascopy_data.py --input var/input/dukascopy --output var/input/dax_2025_full.csv
+   ```
+
+5. **Configure Telegram (optional)**:
    ```bash
    cp etc/telegram_config.json.template etc/telegram_config.json
    # Edit with your bot_token and chat_id
    ```
 
-5. **Configure MongoDB (optional)**:
+6. **Configure MongoDB (optional)**:
    ```bash
    cp etc/mongodb_config.json.template etc/mongodb_config.json
    # Edit with your connection_string and database name
    # Ensure your IP is whitelisted in Azure Cosmos DB firewall
    ```
 
-6. **Run analysis**:
+7. **Run analysis**:
    ```bash
    python bin/analyze_london_open.py
    ```
 
 ## Usage
+
+### Data Download (Dukascopy)
+
+```bash
+# Download data for a specific date
+node bin/download_dukascopy_data.js --date 2025-01-02 --timeframe m5 --output var/input/dax_data.json
+
+# Download a date range
+node bin/download_dukascopy_data.js --from 2025-01-01 --to 2025-01-31 --timeframe m5 --output var/input/dax_jan.json
+
+# Download full year (month by month)
+./bin/download_year_data.sh 2025
+
+# Merge monthly files
+python bin/merge_dukascopy_data.py --input var/input/dukascopy --output var/input/dax_2025_full.csv
+```
+
+### Data Pipeline
 
 ```bash
 # DAX Data Pipeline (download + MongoDB + analysis)
@@ -140,6 +174,37 @@ Each chart shows:
 - **Filter**: >15 points + fast speed
 - Use: Trend-following entries
 
+## Data Source
+
+This project uses **[Dukascopy](https://www.dukascopy.com/)** as the primary data source via the [dukascopy-node](https://github.com/Leo4815162342/dukascopy-node) library.
+
+### Why Dukascopy?
+
+- **High Quality**: Professional-grade tick data from Swiss forex bank
+- **Free Access**: No API keys or registration required
+- **Historical Data**: Access to years of historical data
+- **DAX Coverage**: Full support for Germany 40 Index (deuidxeur)
+- **Multiple Timeframes**: From tick data to daily candles
+
+### Supported Timeframes
+
+- `tick` - Tick-by-tick data
+- `s1` - 1 second
+- `m1` - 1 minute
+- `m5` - 5 minutes (default)
+- `m15` - 15 minutes
+- `m30` - 30 minutes
+- `h1` - 1 hour
+- `h4` - 4 hours
+- `d1` - 1 day
+
+### Instrument Information
+
+- **Symbol**: `deuidxeur` (Germany 40 Index / DAX)
+- **Type**: CFD Index
+- **Data Available From**: January 1, 2013
+- **Currency**: EUR
+
 ## Telegram Integration
 
 Automatically sends after analysis:
@@ -153,6 +218,7 @@ Setup:
 
 ## Requirements
 
+### Python Requirements
 - Python 3.8+
 - pandas >= 1.5
 - numpy >= 1.24
@@ -161,6 +227,11 @@ Setup:
 - scikit-learn >= 1.0
 - scipy >= 1.9
 - requests >= 2.31
+- pymongo >= 4.6
+
+### Node.js Requirements
+- Node.js 18+ ([Download](https://nodejs.org/))
+- dukascopy-node (installed via `npm install`)
 
 ## License
 

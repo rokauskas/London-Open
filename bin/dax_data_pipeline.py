@@ -105,23 +105,18 @@ def get_mongodb_client(config):
         raise
 
 
-def download_dax_data(date=None, interval='5m'):
+def download_dax_data(date=None, interval='5m', use_dukascopy=True):
     """
-    Download DAX 5-minute candle data for specified date
+    Download DAX 5-minute candle data for specified date using Dukascopy
     
     Args:
         date (str): Date in YYYY-MM-DD format (default: yesterday)
         interval (str): Candle interval (default: 5m)
+        use_dukascopy (bool): Use Dukascopy Node.js downloader (default: True)
     
     Returns:
         pd.DataFrame: OHLC data with columns [timestamp, open, high, low, close, volume]
     """
-    try:
-        import yfinance as yf
-    except ImportError:
-        print("Error: yfinance not installed. Install with: pip install yfinance")
-        sys.exit(1)
-    
     if date is None:
         # Default to yesterday
         target_date = datetime.now() - timedelta(days=1)
@@ -131,6 +126,155 @@ def download_dax_data(date=None, interval='5m'):
         target_date = datetime.strptime(date, '%Y-%m-%d')
     
     print(f"\nDownloading DAX data for {date_str}...")
+    
+    if use_dukascopy:
+        # Use Dukascopy Node.js downloader
+        return download_dax_data_dukascopy(date_str, interval)
+    else:
+        # Fallback to yfinance (legacy)
+        return download_dax_data_yfinance(date_str, interval)
+
+
+def download_dax_data_dukascopy(date_str, interval='5m'):
+    """
+    Download DAX data using Dukascopy Node.js downloader
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        interval (str): Candle interval (5m, 15m, 30m, 1h, etc.)
+    
+    Returns:
+        pd.DataFrame: OHLC data with columns [timestamp, open, high, low, close, volume]
+    """
+    import subprocess
+    import tempfile
+    
+    # Map Python interval notation to Dukascopy timeframes
+    timeframe_map = {
+        '1m': 'm1',
+        '5m': 'm5',
+        '15m': 'm15',
+        '30m': 'm30',
+        '1h': 'h1',
+        '4h': 'h4',
+        '1d': 'd1'
+    }
+    
+    timeframe = timeframe_map.get(interval, 'm5')
+    
+    print(f"Using Dukascopy downloader (timeframe: {timeframe})...")
+    
+    # Create temporary file for output
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp_file:
+        output_file = tmp_file.name
+    
+    try:
+        # Path to Node.js downloader script
+        downloader_script = project_root / "bin" / "download_dukascopy_data.js"
+        
+        # Run Node.js downloader
+        cmd = [
+            'node',
+            str(downloader_script),
+            '--date', date_str,
+            '--timeframe', timeframe,
+            '--format', 'json',
+            '--output', output_file,
+            '--instrument', 'deuidxeur'  # DAX (Germany 40 Index)
+        ]
+        
+        print(f"Running: {' '.join(cmd)}")
+        
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=120  # 2 minute timeout
+        )
+        
+        if result.returncode != 0:
+            print(f"Error: Dukascopy downloader failed")
+            print(f"stdout: {result.stdout}")
+            print(f"stderr: {result.stderr}")
+            return None
+        
+        # Read the JSON output
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+        
+        if not data or len(data) == 0:
+            print(f"Warning: No data available for {date_str}")
+            print("This might be a weekend, holiday, or no trading activity.")
+            return None
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(data)
+        
+        # Ensure timestamp column exists and convert to datetime
+        if 'timestamp' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+        elif 'time' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['time'])
+            df = df.drop('time', axis=1)
+        
+        # Ensure required columns exist
+        required_columns = ['timestamp', 'open', 'high', 'low', 'close']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        
+        if missing_columns:
+            print(f"Error: Missing required columns: {missing_columns}")
+            print(f"Available columns: {df.columns.tolist()}")
+            return None
+        
+        # Add volume column if missing (Dukascopy might not provide volume for indices)
+        if 'volume' not in df.columns:
+            df['volume'] = 0
+        
+        print(f"✓ Downloaded {len(df)} candles from Dukascopy")
+        print(f"  Time range: {df['timestamp'].min()} to {df['timestamp'].max()}")
+        
+        return df
+    
+    except subprocess.TimeoutExpired:
+        print("Error: Download timed out after 2 minutes")
+        return None
+    except FileNotFoundError:
+        print("Error: Node.js not found. Please install Node.js to use Dukascopy downloader")
+        print("Alternatively, set use_dukascopy=False to use yfinance (legacy)")
+        return None
+    except Exception as e:
+        print(f"Error downloading data from Dukascopy: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+    finally:
+        # Clean up temporary file
+        try:
+            Path(output_file).unlink()
+        except:
+            pass
+
+
+def download_dax_data_yfinance(date_str, interval='5m'):
+    """
+    Download DAX data using yfinance (legacy fallback)
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        interval (str): Candle interval
+    
+    Returns:
+        pd.DataFrame: OHLC data with columns [timestamp, open, high, low, close, volume]
+    """
+    try:
+        import yfinance as yf
+    except ImportError:
+        print("Error: yfinance not installed. Install with: pip install yfinance")
+        return None
+    
+    target_date = datetime.strptime(date_str, '%Y-%m-%d')
+    
+    print(f"Using yfinance downloader (legacy)...")
     
     # DAX ticker symbol
     ticker = "^GDAXI"
