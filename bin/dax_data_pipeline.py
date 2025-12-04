@@ -392,8 +392,19 @@ def main():
         action='store_true',
         help='Download and store data without running analysis'
     )
+    parser.add_argument(
+        '--force', '-f',
+        action='store_true',
+        help='Skip uncommitted changes check and proceed anyway'
+    )
     
     args = parser.parse_args()
+    
+    # Check for uncommitted changes before proceeding
+    if not args.force:
+        from src.dax_momentum.git_utils import check_and_prompt_if_uncommitted
+        if not check_and_prompt_if_uncommitted(project_root):
+            sys.exit(0)
     
     # Determine session date
     if args.date:

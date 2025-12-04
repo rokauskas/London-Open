@@ -68,6 +68,7 @@ def main():
     p.add_argument("--out", "-o", type=Path, default=Path("var") / cfg("out", "output"), help="output directory")
     p.add_argument("--all", action="store_true", help="process all CSVs in data_dir instead of only latest")
     p.add_argument("--clean-output", action="store_true", help="clear entire output directory before writing results")
+    p.add_argument("--force", "-f", action="store_true", help="skip uncommitted changes check and proceed anyway")
     p.add_argument("--window", type=int, default=cfg("window", 5))
     p.add_argument("--min", type=int, default=cfg("min_ticks", 1), help="minimum ticks in a burst (default=1)")
     p.add_argument("--gap", type=int, default=cfg("gap", 0), help="maximum gap (ticks) between burst runs to merge them")
@@ -76,6 +77,12 @@ def main():
     p.add_argument("--min-speed", type=float, default=cfg("min_speed", 0.0), help="minimum speed (price/sec) for a burst")
     p.add_argument("--same-sign", type=int, default=cfg("same_sign", 1), help="minimum number of same-sign ticks inside burst")
     args = p.parse_args()
+
+    # Check for uncommitted changes before proceeding
+    if not args.force:
+        from src.dax_momentum.git_utils import check_and_prompt_if_uncommitted
+        if not check_and_prompt_if_uncommitted(project_root):
+            sys.exit(0)
 
     # Get data directory from config
     data_dir = Path(cfg("data_dir", "var/input"))
