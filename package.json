@@ -1,0 +1,37 @@
+{
+  "name": "london-open",
+  "version": "1.0.0",
+  "description": "DAX 5-minute data pipeline with automated downloads from Dukascopy, MongoDB storage (Azure Cosmos DB), daily automation, gap analysis, and pattern recognition",
+  "main": "index.js",
+  "scripts": {
+    "download": "node bin/download_dax_dukascopy_5min.js",
+    "download:5min": "node bin/download_dax_dukascopy_5min.js",
+    "download:1min": "node bin/download_dax_dukascopy_1min.js",
+    "download:year": "node bin/download_dax_dukascopy_5min.js --year 2024",
+    "download:daily": "node bin/download_dax_dukascopy_5min.js --daily",
+    "analyze-gaps": "node bin/analyze_data_gaps.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dax",
+    "trading",
+    "dukascopy",
+    "mongodb",
+    "cosmos-db",
+    "automation",
+    "logging",
+    "crontab",
+    "pattern-recognition"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
+    "dukascopy-node": "^1.45.1",
+    "mathjs": "^15.1.0",
+    "ml-regression": "^6.3.0",
+    "mongodb": "^6.0.0",
+    "simple-statistics": "^7.8.8",
+    "technicalindicators": "^3.1.0"
+  }
+}

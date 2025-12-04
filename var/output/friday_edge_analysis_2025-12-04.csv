@@ -1,0 +1,32 @@
+date,signal,confidence,entry,stopLoss,target,risk,reward,riskReward,mlPrediction,morningMove,morningRSI,actualAfternoonMove,outcome,reasoning
+2025-04-04,SHORT,87.19,21186.35,21402.85,20536.85,216.50,649.50,3.00,-1.7194,-0.95,32.77,-4.05,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-08-01,SHORT,79.25,23671.10,23721.46,23520.03,50.36,151.07,3.00,-0.9249,-0.08,47.21,-0.97,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-11-14,SHORT,76.41,23836.29,24025.29,23269.29,189.00,567.00,3.00,-0.6411,-0.67,39.09,0.02,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-04-03,SHORT,76.23,21953.90,22150.76,21363.33,196.86,590.57,3.00,-0.6226,-0.33,37.56,-1.43,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-03-06,SHORT,75.64,23163.38,23442.88,22324.88,279.50,838.50,3.00,-0.5643,-0.56,35.17,0.31,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-07-31,SHORT,75.37,24331.96,24419.60,24069.02,87.64,262.93,3.00,-0.5371,-0.23,48.42,-1.36,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-11-13,SHORT,73.97,24317.29,24422.90,24000.45,105.61,316.83,3.00,-0.3968,-0.43,33.06,-0.89,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-10-30,SHORT,73.82,24097.76,24222.29,23724.16,124.53,373.60,3.00,-0.3815,-0.48,37.80,0.08,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-11-06,SHORT,73.72,23983.76,24039.29,23817.16,55.53,166.60,3.00,-0.3717,-0.23,45.81,-0.92,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-10-03,SHORT,73.69,24457.79,24487.29,24369.29,29.50,88.50,3.00,-0.3692,-0.09,49.21,-0.29,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-07-18,SHORT,73.60,24462.78,24492.27,24374.31,29.49,88.47,3.00,-0.3605,-0.10,47.97,-1.09,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-08-15,SHORT,73.41,24478.27,24531.79,24317.70,53.52,160.57,3.00,-0.3407,-0.12,48.83,-0.41,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-03-21,SHORT,72.97,22757.70,22957.68,22157.77,199.98,599.93,3.00,-0.2967,-0.61,36.89,0.57,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-11-20,SHORT,72.74,23324.78,23452.78,22940.78,128.00,384.00,3.00,-0.2736,-0.32,34.14,-1.71,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-01-16,SHORT,72.42,20586.00,20701.56,20239.33,115.56,346.67,3.00,-0.2422,-0.56,40.89,0.08,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-03-14,LONG,72.23,22659.76,22458.30,23264.12,201.46,604.37,3.00,0.2231,0.45,55.19,1.84,WIN,ML predicts bullish afternoon; Morning session bullish; Price above VWAP; RSI not overbought
+2025-07-24,SHORT,72.20,24402.49,24502.96,24101.09,100.47,301.40,3.00,-0.2195,-0.26,32.50,-0.64,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-01-03,SHORT,72.07,19967.70,20034.10,19768.50,66.40,199.20,3.00,-0.2067,-0.17,50.09,-0.31,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-03-28,SHORT,72.02,22460.99,22619.46,21985.59,158.47,475.40,3.00,-0.2017,-0.28,32.83,-0.03,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-04-10,SHORT,72.01,20744.28,20904.99,20262.14,160.71,482.13,3.00,-0.2010,-0.53,45.09,-0.07,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-09-26,SHORT,71.72,23612.77,23688.76,23384.80,75.99,227.97,3.00,-0.1717,-0.16,46.49,0.57,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-02-21,SHORT,71.60,22302.30,22355.27,22143.40,52.97,158.90,3.00,-0.1601,-0.13,44.95,-0.56,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-10-23,SHORT,71.59,24068.90,24133.78,23874.27,64.88,194.63,3.00,-0.1586,-0.21,46.61,0.58,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-10-31,SHORT,71.58,24003.80,24136.77,23604.90,132.97,398.90,3.00,-0.1582,-0.53,37.24,-0.15,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-07-10,SHORT,71.47,24586.28,24617.40,24492.91,31.12,93.37,3.00,-0.1473,-0.04,44.89,-0.60,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-07-04,SHORT,71.46,23772.28,23820.40,23627.91,48.12,144.37,3.00,-0.1463,-0.02,51.87,0.01,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-09-12,SHORT,71.20,23629.79,23698.29,23424.29,68.50,205.50,3.00,-0.1202,-0.20,41.02,0.29,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-01-02,SHORT,71.05,19911.10,20022.50,19576.90,111.40,334.20,3.00,-0.1049,-0.14,46.15,0.26,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP; RSI not oversold
+2025-03-20,SHORT,65.18,22983.27,23321.87,21967.47,338.60,1015.80,3.00,-0.5183,-1.31,23.11,-0.10,WIN,ML predicts bearish afternoon; Morning session bearish; Price below VWAP
+2025-09-25,SHORT,61.66,23471.29,23617.26,23033.39,145.97,437.90,3.00,-0.1655,-0.54,27.69,0.41,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP
+2025-09-19,SHORT,61.13,23639.90,23787.90,23195.90,148.00,444.00,3.00,-0.1128,-0.46,28.58,0.03,LOSS,ML predicts bearish afternoon; Morning session bearish; Price below VWAP
