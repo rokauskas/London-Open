@@ -2,6 +2,15 @@
 
 Advanced trading analysis tool for DAX futures during London Open session (08:00-10:00 UTC).
 
+## ⚠️ Security Note
+
+**Sensitive configuration files are gitignored:** The following files containing credentials are excluded from version control:
+- `etc/mongodb_config.json` - MongoDB connection strings
+- `etc/telegram_config.json` - Telegram bot tokens
+- `etc/ai_config.json` - AI service credentials (if applicable)
+
+Always use the provided `.template` files to create your local configuration files. **Never commit files with real credentials.**
+
 ## Features
 
 - **CSV Import**: Auto-detects and imports CSV files with OHLC + Volume data
@@ -23,6 +32,8 @@ London-Open/
 │   └── send_telegram_notification.py  # Telegram notification script
 ├── etc/                        # Configuration files
 │   ├── momentum_config.json   # Analysis settings
+│   ├── mongodb_config.json    # MongoDB credentials (gitignored)
+│   ├── mongodb_config.json.template  # Template
 │   ├── telegram_config.json   # Telegram credentials (gitignored)
 │   └── telegram_config.json.template  # Template
 ├── var/                        # Data and outputs
