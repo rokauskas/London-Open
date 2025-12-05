@@ -94,8 +94,11 @@ def check_gitignore():
         return [".gitignore file is missing"]
     
     try:
-        with open(gitignore_path, 'r', encoding='utf-8', errors='replace') as f:
+        with open(gitignore_path, 'r', encoding='utf-8') as f:
             gitignore_content = f.read()
+    except UnicodeDecodeError as e:
+        print(f"   ❌ ERROR: .gitignore has encoding issues: {e}")
+        return [f".gitignore has encoding issues: {e}"]
     except Exception as e:
         print(f"   ❌ ERROR: Could not read .gitignore: {e}")
         return [f"Could not read .gitignore: {e}"]
@@ -173,9 +176,9 @@ def check_config_content():
                 bot_token = config.get('bot_token', '')
                 chat_id = config.get('chat_id', '')
                 
-                # Telegram bot tokens should match format: digits:alphanumeric
+                # Telegram bot tokens should match format: digits:alphanumeric+underscore
                 # Example: 123456789:ABCdefGHIjklMNOpqrSTUvwxYZ
-                telegram_token_pattern = r'^\d+:[A-Za-z0-9_-]+$'
+                telegram_token_pattern = r'^\d+:[A-Za-z0-9_]+$'
                 
                 if contains_placeholder(bot_token):
                     print("   ⚠️  Telegram config contains placeholder bot token")
