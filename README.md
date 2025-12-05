@@ -57,11 +57,16 @@ This project uses configuration files that may contain sensitive information:
    - `.env` and environment variable files
    - Files with `_key`, `_token`, `_secret`, `_credentials` in the name
 
-3. **Verify Before Committing**: Always check `git status` before committing:
+3. **Run Security Checker**: Use the built-in security checker before committing:
    ```bash
-   git status
-   # Ensure no config files with secrets are listed
+   python bin/check_config_security.py
    ```
+   
+   This will verify:
+   - No sensitive files are tracked by git
+   - Template files exist
+   - `.gitignore` is properly configured
+   - Config files don't contain placeholder values
 
 4. **Use Environment Variables**: As an alternative, the scripts support environment variables:
    ```bash
