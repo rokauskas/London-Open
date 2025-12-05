@@ -92,8 +92,12 @@ def check_gitignore():
         print("   ❌ CRITICAL: .gitignore file not found!")
         return [".gitignore file is missing"]
     
-    with open(gitignore_path, 'r', encoding='utf-8', errors='ignore') as f:
-        gitignore_content = f.read()
+    try:
+        with open(gitignore_path, 'r', encoding='utf-8', errors='replace') as f:
+            gitignore_content = f.read()
+    except Exception as e:
+        print(f"   ❌ ERROR: Could not read .gitignore: {e}")
+        return [f"Could not read .gitignore: {e}"]
     
     issues = []
     required_patterns = [
@@ -122,11 +126,18 @@ def check_config_content():
     mongodb_config = project_root / 'etc' / 'mongodb_config.json'
     if mongodb_config.exists():
         try:
-            with open(mongodb_config, 'r') as f:
+            with open(mongodb_config, 'r', encoding='utf-8') as f:
                 config = json.load(f)
                 conn_str = config.get('connection_string', '')
                 
-                if 'username:password@' in conn_str:
+                # Check for common placeholder patterns
+                placeholders = [
+                    'username:password@',
+                    'your-username:your-password@',
+                    'YOUR_USERNAME:YOUR_PASSWORD@',
+                ]
+                
+                if any(placeholder in conn_str for placeholder in placeholders):
                     print("   ⚠️  MongoDB config contains placeholder credentials")
                     warnings.append("MongoDB config may contain placeholder values")
                 elif conn_str:
@@ -140,7 +151,7 @@ def check_config_content():
     telegram_config = project_root / 'etc' / 'telegram_config.json'
     if telegram_config.exists():
         try:
-            with open(telegram_config, 'r') as f:
+            with open(telegram_config, 'r', encoding='utf-8') as f:
                 config = json.load(f)
                 bot_token = config.get('bot_token', '')
                 
