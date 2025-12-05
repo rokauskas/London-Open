@@ -34,6 +34,46 @@ London-Open/
     └── analysis/              # Analysis modules
 ```
 
+## Security
+
+**⚠️ Important: Never commit sensitive credentials to the repository!**
+
+This project uses configuration files that may contain sensitive information:
+- `etc/mongodb_config.json` - MongoDB connection strings with passwords
+- `etc/telegram_config.json` - Telegram bot tokens and chat IDs
+- `etc/ai_config.json` - AI API keys (if applicable)
+- `.env` files - Environment variables with secrets
+
+### Security Best Practices
+
+1. **Use Template Files**: Copy `.template` files to create your configs:
+   ```bash
+   cp etc/mongodb_config.json.template etc/mongodb_config.json
+   cp etc/telegram_config.json.template etc/telegram_config.json
+   ```
+
+2. **Never Commit Secrets**: The `.gitignore` file is configured to exclude:
+   - All `*_config.json` files in `etc/` (except templates)
+   - `.env` and environment variable files
+   - Files with `_key`, `_token`, `_secret`, `_credentials` in the name
+
+3. **Verify Before Committing**: Always check `git status` before committing:
+   ```bash
+   git status
+   # Ensure no config files with secrets are listed
+   ```
+
+4. **Use Environment Variables**: As an alternative, the scripts support environment variables:
+   ```bash
+   export TELEGRAM_BOT_TOKEN="your_token"
+   export TELEGRAM_CHAT_ID="your_chat_id"
+   ```
+
+5. **Rotate Exposed Credentials**: If you accidentally commit credentials:
+   - Immediately rotate/revoke the exposed credentials
+   - Remove them from git history using tools like `git filter-repo`
+   - Update `.gitignore` to prevent future exposure
+
 ## Quick Start
 
 1. **Setup virtual environment**:
