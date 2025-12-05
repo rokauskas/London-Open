@@ -99,6 +99,28 @@ function calculateATR(candles, period = 14) {
 }
 
 /**
+ * Get previous trading day (Thursday) data for comparison
+ */
+function getPreviousDayData(candles) {
+  if (candles.length === 0) return null;
+  
+  const closes = candles.map(c => c.close);
+  const highs = candles.map(c => c.high);
+  const lows = candles.map(c => c.low);
+  const atr = calculateATR(candles, 14);
+  
+  const validATR = atr.filter(v => v !== null);
+  const dayATR = validATR.length > 0 ? validATR[validATR.length - 1] : null;
+  
+  return {
+    atr: dayATR,
+    range: Math.max(...highs) - Math.min(...lows),
+    volume: candles.reduce((sum, c) => sum + c.volume, 0),
+    close: closes[closes.length - 1]
+  };
+}
+
+/**
  * Calculate MACD
  */
 function calculateMACD(prices) {
@@ -130,7 +152,7 @@ function calculateStochastic(candles, period = 14) {
 /**
  * Analyze a single Friday session
  */
-function analyzeFriday(sessionDate, candles) {
+function analyzeFriday(sessionDate, candles, thursdayData = null) {
   const sessionDateObj = new Date(sessionDate);
   
   // Sort candles by time
@@ -223,6 +245,48 @@ function analyzeFriday(sessionDate, candles) {
   // Get Friday close from previous week for gap analysis
   const prevFridayClose = null; // Would need to query previous Friday
   
+  // Calculate average price for the day
+  const avgPrice = (dayHigh + dayLow + dayClose) / 3;
+  
+  // Calculate deviations from opening price
+  const maxFromOpen = dayHigh - dayOpen;
+  const minFromOpen = dayLow - dayOpen;
+  const maxFromOpenPercent = (maxFromOpen / dayOpen) * 100;
+  const minFromOpenPercent = (minFromOpen / dayOpen) * 100;
+  
+  // Calculate deviations from average price
+  const maxFromAvg = dayHigh - avgPrice;
+  const minFromAvg = dayLow - avgPrice;
+  const maxFromAvgPercent = (maxFromAvg / avgPrice) * 100;
+  const minFromAvgPercent = (minFromAvg / avgPrice) * 100;
+  
+  // ATR statistics for the day
+  const validATR = atr.filter(v => v !== null);
+  const dayATR = validATR.length > 0 ? validATR[validATR.length - 1] : null;
+  const avgATR = validATR.length > 0 ? stats.mean(validATR) : null;
+  const maxATR = validATR.length > 0 ? Math.max(...validATR) : null;
+  const minATR = validATR.length > 0 ? Math.min(...validATR) : null;
+  
+  // ATR-normalized volatility metrics
+  const atrNormalizedRange = dayATR ? dayRange / dayATR : null;
+  const atrNormalizedMorningRange = dayATR ? morningRange / dayATR : null;
+  
+  // Thursday comparison data (if available)
+  let thursdayComparison = null;
+  if (thursdayData) {
+    thursdayComparison = {
+      thursdayATR: thursdayData.atr,
+      atrChange: dayATR && thursdayData.atr ? dayATR - thursdayData.atr : null,
+      atrChangePercent: dayATR && thursdayData.atr ? ((dayATR - thursdayData.atr) / thursdayData.atr) * 100 : null,
+      thursdayRange: thursdayData.range,
+      rangeChange: dayRange - thursdayData.range,
+      rangeChangePercent: ((dayRange - thursdayData.range) / thursdayData.range) * 100,
+      thursdayVolume: thursdayData.volume,
+      volumeChange: dayVolume - thursdayData.volume,
+      volumeChangePercent: ((dayVolume - thursdayData.volume) / thursdayData.volume) * 100
+    };
+  }
+  
   return {
     date: sessionDate,
     
@@ -278,8 +342,41 @@ function analyzeFriday(sessionDate, candles) {
       move: dayMove,
       movePercent: dayMovePercent,
       bullish: dayBullish,
-      volume: dayVolume
+      volume: dayVolume,
+      avgPrice: avgPrice,
+      
+      // ATR metrics
+      atr: dayATR,
+      avgATR: avgATR,
+      maxATR: maxATR,
+      minATR: minATR,
+      atrNormalizedRange: atrNormalizedRange,
+      
+      // Deviations from opening price
+      maxFromOpen: maxFromOpen,
+      minFromOpen: minFromOpen,
+      maxFromOpenPercent: maxFromOpenPercent,
+      minFromOpenPercent: minFromOpenPercent,
+      
+      // Deviations from average price
+      maxFromAvg: maxFromAvg,
+      minFromAvg: minFromAvg,
+      maxFromAvgPercent: maxFromAvgPercent,
+      minFromAvgPercent: minFromAvgPercent
     },
+    
+    // ATR volatility analysis
+    atr: {
+      current: dayATR,
+      average: avgATR,
+      max: maxATR,
+      min: minATR,
+      normalizedDayRange: atrNormalizedRange,
+      normalizedMorningRange: atrNormalizedMorningRange
+    },
+    
+    // Thursday comparison (previous day)
+    thursdayComparison: thursdayComparison,
     
     // Relationships
     morningAfternoonAlign: morningAfternoonAlign,
@@ -545,13 +642,30 @@ async function analyzeFridayEdge() {
     console.log('\nAnalyzing Friday sessions...');
     const fridayData = [];
     
-    for (const sessionDate of fridays) {
+    for (let i = 0; i < fridays.length; i++) {
+      const sessionDate = fridays[i];
       const candles = await collection.find({
         session_date: sessionDate,
         interval: '5m'
       }).toArray();
       
-      const analysis = analyzeFriday(sessionDate, candles);
+      // Get Thursday data (previous trading day) for comparison
+      let thursdayData = null;
+      const fridayDate = new Date(sessionDate);
+      const thursdayDate = new Date(fridayDate);
+      thursdayDate.setDate(thursdayDate.getDate() - 1); // Go back 1 day
+      const thursdaySessionDate = thursdayDate.toISOString().split('T')[0];
+      
+      const thursdayCandles = await collection.find({
+        session_date: thursdaySessionDate,
+        interval: '5m'
+      }).toArray();
+      
+      if (thursdayCandles.length > 0) {
+        thursdayData = getPreviousDayData(thursdayCandles);
+      }
+      
+      const analysis = analyzeFriday(sessionDate, candles, thursdayData);
       if (analysis) {
         fridayData.push(analysis);
       }
@@ -625,6 +739,107 @@ async function analyzeFridayEdge() {
     console.log(`  Move %: ${dayStats.mean.toFixed(3)}% ± ${dayStats.std.toFixed(3)}% (median: ${dayStats.median.toFixed(3)}%)`);
     console.log(`  Bullish: ${fridayData.filter(f => f.day.bullish).length} (${(fridayData.filter(f => f.day.bullish).length / fridayData.length * 100).toFixed(1)}%)`);
     
+    // ATR Analysis
+    console.log('\n' + '='.repeat(80));
+    console.log('ATR (AVERAGE TRUE RANGE) ANALYSIS FOR FRIDAYS');
+    console.log('='.repeat(80));
+    
+    const fridayATRs = fridayData.map(f => f.atr.current).filter(v => v !== null);
+    const atrStats = calculateStats(fridayATRs);
+    
+    console.log('\nFriday ATR Statistics:');
+    console.log(`  Mean: ${atrStats.mean.toFixed(2)} points`);
+    console.log(`  Median: ${atrStats.median.toFixed(2)} points`);
+    console.log(`  Std Dev: ${atrStats.std.toFixed(2)} points`);
+    console.log(`  Min: ${atrStats.min.toFixed(2)} points`);
+    console.log(`  Max: ${atrStats.max.toFixed(2)} points`);
+    console.log(`  25th Percentile: ${atrStats.q1.toFixed(2)} points`);
+    console.log(`  75th Percentile: ${atrStats.q3.toFixed(2)} points`);
+    
+    // ATR-normalized ranges
+    const atrNormalizedRanges = fridayData.map(f => f.atr.normalizedDayRange).filter(v => v !== null);
+    if (atrNormalizedRanges.length > 0) {
+      console.log('\nATR-Normalized Day Range:');
+      console.log(`  Mean: ${stats.mean(atrNormalizedRanges).toFixed(2)}x ATR`);
+      console.log(`  Median: ${stats.median(atrNormalizedRanges).toFixed(2)}x ATR`);
+      console.log(`  This shows Friday ranges are typically ${stats.mean(atrNormalizedRanges).toFixed(2)} times the ATR`);
+    }
+    
+    // Thursday vs Friday comparison
+    const thursdayComparisons = fridayData.filter(f => f.thursdayComparison !== null);
+    if (thursdayComparisons.length > 0) {
+      console.log('\n' + '='.repeat(80));
+      console.log('THURSDAY VS FRIDAY COMPARISON (Previous Day Analysis)');
+      console.log('='.repeat(80));
+      
+      const thursdayATRs = thursdayComparisons.map(f => f.thursdayComparison.thursdayATR).filter(v => v !== null);
+      const atrChanges = thursdayComparisons.map(f => f.thursdayComparison.atrChange).filter(v => v !== null);
+      const atrChangePercents = thursdayComparisons.map(f => f.thursdayComparison.atrChangePercent).filter(v => v !== null);
+      
+      console.log(`\n✓ Analyzed ${thursdayComparisons.length} Friday-Thursday pairs`);
+      
+      if (thursdayATRs.length > 0) {
+        console.log('\nThursday ATR Statistics:');
+        console.log(`  Mean: ${stats.mean(thursdayATRs).toFixed(2)} points`);
+        console.log(`  Median: ${stats.median(thursdayATRs).toFixed(2)} points`);
+      }
+      
+      if (atrChanges.length > 0) {
+        console.log('\nATR Change (Friday vs Thursday):');
+        console.log(`  Mean Change: ${stats.mean(atrChanges).toFixed(2)} points`);
+        console.log(`  Median Change: ${stats.median(atrChanges).toFixed(2)} points`);
+      }
+      
+      if (atrChangePercents.length > 0) {
+        console.log(`  Mean % Change: ${stats.mean(atrChangePercents).toFixed(2)}%`);
+        console.log(`  Median % Change: ${stats.median(atrChangePercents).toFixed(2)}%`);
+        
+        const fridaysHigherVol = thursdayComparisons.filter(f => f.thursdayComparison.atrChangePercent > 0).length;
+        const fridaysLowerVol = thursdayComparisons.filter(f => f.thursdayComparison.atrChangePercent < 0).length;
+        console.log(`\nVolatility Pattern:`);
+        console.log(`  Fridays with HIGHER volatility than Thursday: ${fridaysHigherVol} (${(fridaysHigherVol / thursdayComparisons.length * 100).toFixed(1)}%)`);
+        console.log(`  Fridays with LOWER volatility than Thursday: ${fridaysLowerVol} (${(fridaysLowerVol / thursdayComparisons.length * 100).toFixed(1)}%)`);
+      }
+      
+      // Range comparison
+      const rangeChanges = thursdayComparisons.map(f => f.thursdayComparison.rangeChange).filter(v => v !== null);
+      const rangeChangePercents = thursdayComparisons.map(f => f.thursdayComparison.rangeChangePercent).filter(v => v !== null);
+      
+      if (rangeChangePercents.length > 0) {
+        console.log('\nRange Change (Friday vs Thursday):');
+        console.log(`  Mean Change: ${stats.mean(rangeChanges).toFixed(2)} points`);
+        console.log(`  Mean % Change: ${stats.mean(rangeChangePercents).toFixed(2)}%`);
+      }
+      
+      // Volume comparison
+      const volumeChangePercents = thursdayComparisons.map(f => f.thursdayComparison.volumeChangePercent).filter(v => v !== null);
+      if (volumeChangePercents.length > 0) {
+        console.log('\nVolume Change (Friday vs Thursday):');
+        console.log(`  Mean % Change: ${stats.mean(volumeChangePercents).toFixed(2)}%`);
+      }
+    }
+    
+    // Price deviation analysis
+    console.log('\n' + '='.repeat(80));
+    console.log('PRICE DEVIATION ANALYSIS');
+    console.log('='.repeat(80));
+    
+    const maxFromOpenPercents = fridayData.map(f => f.day.maxFromOpenPercent);
+    const minFromOpenPercents = fridayData.map(f => f.day.minFromOpenPercent);
+    const maxFromAvgPercents = fridayData.map(f => f.day.maxFromAvgPercent);
+    const minFromAvgPercents = fridayData.map(f => f.day.minFromAvgPercent);
+    
+    console.log('\nDeviations from Opening Price:');
+    console.log(`  Max (High from Open): ${stats.mean(maxFromOpenPercents).toFixed(3)}% ± ${stats.standardDeviation(maxFromOpenPercents).toFixed(3)}%`);
+    console.log(`  Min (Low from Open): ${stats.mean(minFromOpenPercents).toFixed(3)}% ± ${stats.standardDeviation(minFromOpenPercents).toFixed(3)}%`);
+    console.log(`  Average upside: ${stats.mean(maxFromOpenPercents).toFixed(3)}%`);
+    console.log(`  Average downside: ${stats.mean(minFromOpenPercents).toFixed(3)}%`);
+    
+    console.log('\nDeviations from Average Price (VWAP-like):');
+    console.log(`  Max (High from Avg): ${stats.mean(maxFromAvgPercents).toFixed(3)}% ± ${stats.standardDeviation(maxFromAvgPercents).toFixed(3)}%`);
+    console.log(`  Min (Low from Avg): ${stats.mean(minFromAvgPercents).toFixed(3)}% ± ${stats.standardDeviation(minFromAvgPercents).toFixed(3)}%`);
+    
+    
     // Predictive power
     const alignedMorningAfternoon = fridayData.filter(f => f.morningAfternoonAlign).length;
     const alignedMorningDay = fridayData.filter(f => f.morningDayAlign).length;
@@ -675,6 +890,8 @@ async function analyzeFridayEdge() {
     }
     
     const timestamp = new Date().toISOString().split('T')[0];
+    
+    // Export signals CSV
     const csvPath = path.join(outputDir, `friday_edge_analysis_${timestamp}.csv`);
     
     const csvHeaders = Object.keys(signals[0]).join(',');
@@ -682,7 +899,44 @@ async function analyzeFridayEdge() {
     const csvContent = [csvHeaders, ...csvRows].join('\n');
     
     fs.writeFileSync(csvPath, csvContent);
-    console.log(`✓ Results exported to: ${csvPath}`);
+    console.log(`✓ Signals exported to: ${csvPath}`);
+    
+    // Export detailed Friday analysis with ATR metrics
+    const detailedCsvPath = path.join(outputDir, `friday_detailed_analysis_${timestamp}.csv`);
+    const detailedHeaders = [
+      'date',
+      'morning_open', 'morning_close', 'morning_high', 'morning_low', 'morning_range', 'morning_move_pct',
+      'afternoon_move_pct', 'day_move_pct', 'day_range', 'day_volume',
+      'day_atr', 'day_avg_atr', 'day_max_atr', 'day_min_atr', 'atr_normalized_range',
+      'max_from_open', 'min_from_open', 'max_from_open_pct', 'min_from_open_pct',
+      'max_from_avg', 'min_from_avg', 'max_from_avg_pct', 'min_from_avg_pct',
+      'thursday_atr', 'atr_change', 'atr_change_pct',
+      'thursday_range', 'range_change', 'range_change_pct',
+      'thursday_volume', 'volume_change', 'volume_change_pct'
+    ];
+    
+    const detailedRows = fridayData.map(f => {
+      const tc = f.thursdayComparison || {};
+      return [
+        f.date,
+        f.morning.open.toFixed(2), f.morning.close.toFixed(2), f.morning.high.toFixed(2), f.morning.low.toFixed(2),
+        f.morning.range.toFixed(2), f.morning.movePercent.toFixed(3),
+        f.afternoon.movePercent.toFixed(3), f.day.movePercent.toFixed(3), f.day.range.toFixed(2), f.day.volume,
+        (f.atr.current || 0).toFixed(2), (f.atr.average || 0).toFixed(2), (f.atr.max || 0).toFixed(2), (f.atr.min || 0).toFixed(2),
+        (f.atr.normalizedDayRange || 0).toFixed(2),
+        f.day.maxFromOpen.toFixed(2), f.day.minFromOpen.toFixed(2),
+        f.day.maxFromOpenPercent.toFixed(3), f.day.minFromOpenPercent.toFixed(3),
+        f.day.maxFromAvg.toFixed(2), f.day.minFromAvg.toFixed(2),
+        f.day.maxFromAvgPercent.toFixed(3), f.day.minFromAvgPercent.toFixed(3),
+        (tc.thursdayATR || 0).toFixed(2), (tc.atrChange || 0).toFixed(2), (tc.atrChangePercent || 0).toFixed(2),
+        (tc.thursdayRange || 0).toFixed(2), (tc.rangeChange || 0).toFixed(2), (tc.rangeChangePercent || 0).toFixed(2),
+        (tc.thursdayVolume || 0), (tc.volumeChange || 0), (tc.volumeChangePercent || 0).toFixed(2)
+      ].join(',');
+    });
+    
+    const detailedCsvContent = [detailedHeaders.join(','), ...detailedRows].join('\n');
+    fs.writeFileSync(detailedCsvPath, detailedCsvContent);
+    console.log(`✓ Detailed Friday analysis (with ATR metrics) exported to: ${detailedCsvPath}`);
     
     // Trading recommendations
     console.log('\n' + '='.repeat(80));
