@@ -42,9 +42,12 @@ etc/telegram_config.json
 etc/mongodb_config.json
 
 # Generated output and data
-var/output/
-var/input/
-var/logs/
+var/output/*
+!var/output/.gitkeep
+var/input/*
+!var/input/.gitkeep
+var/logs/*
+!var/logs/.gitkeep
 *.log
 
 # Jupyter Notebooks
