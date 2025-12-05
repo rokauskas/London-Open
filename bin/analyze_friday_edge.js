@@ -651,9 +651,10 @@ async function analyzeFridayEdge() {
       
       // Get Thursday data (previous trading day) for comparison
       let thursdayData = null;
-      const fridayDate = new Date(sessionDate);
+      // Calculate Thursday's date (previous trading day - assuming Thursday is 1 day before Friday)
+      const fridayDate = new Date(sessionDate + 'T00:00:00Z');
       const thursdayDate = new Date(fridayDate);
-      thursdayDate.setDate(thursdayDate.getDate() - 1); // Go back 1 day
+      thursdayDate.setUTCDate(thursdayDate.getUTCDate() - 1);
       const thursdaySessionDate = thursdayDate.toISOString().split('T')[0];
       
       const thursdayCandles = await collection.find({
@@ -835,7 +836,7 @@ async function analyzeFridayEdge() {
     console.log(`  Average upside: ${stats.mean(maxFromOpenPercents).toFixed(3)}%`);
     console.log(`  Average downside: ${stats.mean(minFromOpenPercents).toFixed(3)}%`);
     
-    console.log('\nDeviations from Average Price (VWAP-like):');
+    console.log('\nDeviations from Average Price (Typical Price = (H+L+C)/3):');
     console.log(`  Max (High from Avg): ${stats.mean(maxFromAvgPercents).toFixed(3)}% ± ${stats.standardDeviation(maxFromAvgPercents).toFixed(3)}%`);
     console.log(`  Min (Low from Avg): ${stats.mean(minFromAvgPercents).toFixed(3)}% ± ${stats.standardDeviation(minFromAvgPercents).toFixed(3)}%`);
     
@@ -922,15 +923,24 @@ async function analyzeFridayEdge() {
         f.morning.open.toFixed(2), f.morning.close.toFixed(2), f.morning.high.toFixed(2), f.morning.low.toFixed(2),
         f.morning.range.toFixed(2), f.morning.movePercent.toFixed(3),
         f.afternoon.movePercent.toFixed(3), f.day.movePercent.toFixed(3), f.day.range.toFixed(2), f.day.volume,
-        (f.atr.current || 0).toFixed(2), (f.atr.average || 0).toFixed(2), (f.atr.max || 0).toFixed(2), (f.atr.min || 0).toFixed(2),
-        (f.atr.normalizedDayRange || 0).toFixed(2),
+        f.atr.current !== null ? f.atr.current.toFixed(2) : '',
+        f.atr.average !== null ? f.atr.average.toFixed(2) : '',
+        f.atr.max !== null ? f.atr.max.toFixed(2) : '',
+        f.atr.min !== null ? f.atr.min.toFixed(2) : '',
+        f.atr.normalizedDayRange !== null ? f.atr.normalizedDayRange.toFixed(2) : '',
         f.day.maxFromOpen.toFixed(2), f.day.minFromOpen.toFixed(2),
         f.day.maxFromOpenPercent.toFixed(3), f.day.minFromOpenPercent.toFixed(3),
         f.day.maxFromAvg.toFixed(2), f.day.minFromAvg.toFixed(2),
         f.day.maxFromAvgPercent.toFixed(3), f.day.minFromAvgPercent.toFixed(3),
-        (tc.thursdayATR || 0).toFixed(2), (tc.atrChange || 0).toFixed(2), (tc.atrChangePercent || 0).toFixed(2),
-        (tc.thursdayRange || 0).toFixed(2), (tc.rangeChange || 0).toFixed(2), (tc.rangeChangePercent || 0).toFixed(2),
-        (tc.thursdayVolume || 0), (tc.volumeChange || 0), (tc.volumeChangePercent || 0).toFixed(2)
+        tc.thursdayATR !== null && tc.thursdayATR !== undefined ? tc.thursdayATR.toFixed(2) : '',
+        tc.atrChange !== null && tc.atrChange !== undefined ? tc.atrChange.toFixed(2) : '',
+        tc.atrChangePercent !== null && tc.atrChangePercent !== undefined ? tc.atrChangePercent.toFixed(2) : '',
+        tc.thursdayRange !== null && tc.thursdayRange !== undefined ? tc.thursdayRange.toFixed(2) : '',
+        tc.rangeChange !== null && tc.rangeChange !== undefined ? tc.rangeChange.toFixed(2) : '',
+        tc.rangeChangePercent !== null && tc.rangeChangePercent !== undefined ? tc.rangeChangePercent.toFixed(2) : '',
+        tc.thursdayVolume !== null && tc.thursdayVolume !== undefined ? tc.thursdayVolume : '',
+        tc.volumeChange !== null && tc.volumeChange !== undefined ? tc.volumeChange : '',
+        tc.volumeChangePercent !== null && tc.volumeChangePercent !== undefined ? tc.volumeChangePercent.toFixed(2) : ''
       ].join(',');
     });
     
