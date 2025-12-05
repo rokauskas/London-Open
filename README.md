@@ -32,10 +32,9 @@ London-Open/
 │   └── send_telegram_notification.py  # Telegram notification script
 ├── etc/                        # Configuration files
 │   ├── momentum_config.json   # Analysis settings
-│   ├── mongodb_config.json    # MongoDB credentials (gitignored)
-│   ├── mongodb_config.json.template  # Template
-│   ├── telegram_config.json   # Telegram credentials (gitignored)
-│   └── telegram_config.json.template  # Template
+│   ├── *.config.json          # Local configs (gitignored)
+│   ├── mongodb_config.json.template  # MongoDB template
+│   └── telegram_config.json.template # Telegram template
 ├── var/                        # Data and outputs
 │   ├── input/                 # Input CSV files
 │   └── output/                # Generated charts and analysis
