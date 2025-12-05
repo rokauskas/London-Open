@@ -36,7 +36,6 @@ credentials.json
 .idea/
 *.swp
 *.swo
-*~
 .DS_Store
 
 # Build outputs and temporary files
@@ -47,7 +46,6 @@ build/
 
 # OS files
 Thumbs.db
-.DS_Store
 
 # Log files
 *.log

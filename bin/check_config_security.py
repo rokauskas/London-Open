@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 import subprocess
 import json
+import re
 
 # Add project root to Python path
 project_root = Path(__file__).parent.parent.resolve()
@@ -122,6 +123,29 @@ def check_config_content():
     
     warnings = []
     
+    # Common placeholder patterns (case-insensitive)
+    placeholder_patterns = [
+        r'your[_-]?',           # your-, your_, your
+        r'placeholder',         # placeholder
+        r'replace[_-]?this',    # replace-this, replace_this
+        r'example',             # example
+        r'test[_-]?',          # test-, test_
+        r'username:password',   # generic username:password
+        r'<[^>]+>',            # <anything>
+        r'\[.*\]',             # [anything]
+        r'xxx+',               # xxx, xxxx, etc.
+    ]
+    
+    def contains_placeholder(text):
+        """Check if text contains common placeholder patterns"""
+        if not text or text.strip() == '':
+            return True
+        text_lower = text.lower()
+        for pattern in placeholder_patterns:
+            if re.search(pattern, text_lower):
+                return True
+        return False
+    
     # Check MongoDB config
     mongodb_config = project_root / 'etc' / 'mongodb_config.json'
     if mongodb_config.exists():
@@ -130,14 +154,7 @@ def check_config_content():
                 config = json.load(f)
                 conn_str = config.get('connection_string', '')
                 
-                # Check for common placeholder patterns
-                placeholders = [
-                    'username:password@',
-                    'your-username:your-password@',
-                    'YOUR_USERNAME:YOUR_PASSWORD@',
-                ]
-                
-                if any(placeholder in conn_str for placeholder in placeholders):
+                if contains_placeholder(conn_str):
                     print("   ⚠️  MongoDB config contains placeholder credentials")
                     warnings.append("MongoDB config may contain placeholder values")
                 elif conn_str:
@@ -154,12 +171,22 @@ def check_config_content():
             with open(telegram_config, 'r', encoding='utf-8') as f:
                 config = json.load(f)
                 bot_token = config.get('bot_token', '')
+                chat_id = config.get('chat_id', '')
                 
-                if bot_token in ['YOUR_BOT_TOKEN_HERE', '']:
-                    print("   ⚠️  Telegram config contains placeholder values")
+                # Telegram bot tokens should match format: digits:alphanumeric
+                # Example: 123456789:ABCdefGHIjklMNOpqrSTUvwxYZ
+                telegram_token_pattern = r'^\d+:[A-Za-z0-9_-]+$'
+                
+                if contains_placeholder(bot_token):
+                    print("   ⚠️  Telegram config contains placeholder bot token")
                     warnings.append("Telegram config may contain placeholder values")
-                elif bot_token:
+                elif bot_token and not re.match(telegram_token_pattern, bot_token):
+                    print("   ⚠️  Telegram bot token format looks suspicious")
+                    warnings.append("Telegram bot token may not be valid")
+                elif bot_token and chat_id:
                     print("   ✓ Telegram config appears to be configured")
+                else:
+                    print("   ⚠️  Telegram config is incomplete")
         except Exception as e:
             print(f"   ⚠️  Could not parse Telegram config: {e}")
     
