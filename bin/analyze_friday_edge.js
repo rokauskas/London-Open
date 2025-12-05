@@ -10,6 +10,23 @@
  * - Morning session (08:00-10:00) predictive power analysis
  * - ML-based entry/exit signal generation with confidence scores
  * - Comparative period analysis
+ * - ATR (Average True Range) volatility analysis for Fridays
+ * - Thursday vs Friday comparison for volatility patterns
+ * - Price deviation metrics from opening and average prices
+ * - ATR-normalized range analysis
+ * 
+ * New ATR Analysis Features:
+ * - Friday ATR statistics (mean, median, min, max, percentiles)
+ * - Thursday data retrieval for day-over-day comparison
+ * - ATR change analysis (absolute and percentage)
+ * - Range and volume comparison between Thursday and Friday
+ * - Price movement metrics from open and typical price
+ * - Volatility pattern identification (higher/lower than previous day)
+ * 
+ * Output:
+ * - Console output with comprehensive ATR analysis sections
+ * - CSV: friday_edge_analysis_*.csv (trading signals)
+ * - CSV: friday_detailed_analysis_*.csv (complete Friday metrics with ATR data)
  */
 
 const { MongoClient } = require('mongodb');
