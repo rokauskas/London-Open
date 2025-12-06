@@ -46,7 +46,13 @@ except ImportError:
 
 # Suppress CosmosDB compatibility warnings from pymongo
 # These are informational only - the code already handles CosmosDB requirements
-warnings.filterwarnings('ignore', message='.*CosmosDB.*', category=UserWarning)
+# Using specific message pattern to avoid suppressing other warnings
+warnings.filterwarnings(
+    'ignore',
+    message='You appear to be connected to a CosmosDB cluster',
+    category=UserWarning,
+    module='pymongo.*'
+)
 
 
 def load_mongodb_config():
