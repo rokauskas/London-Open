@@ -68,3 +68,11 @@ htmlcov/
 *.bak
 *.backup
 *~
+
+# Generated output files - keep directory structure with .gitkeep
+var/output/*
+!var/output/.gitkeep
+var/input/*
+!var/input/.gitkeep
+var/logs/*
+!var/logs/.gitkeep
