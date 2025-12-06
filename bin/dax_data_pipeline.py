@@ -10,6 +10,11 @@ Security:
     - Never hardcode credentials in source code
     - Use secure connection string with TLS
 
+Compatibility:
+    - Supports Azure Cosmos DB for MongoDB API
+    - CosmosDB warnings are suppressed (informational only)
+    - Connection settings optimized for Cosmos DB (retryWrites=False, extended timeouts)
+
 Usage:
     python bin/dax_data_pipeline.py
     python bin/dax_data_pipeline.py --date 2025-12-03
@@ -23,6 +28,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import argparse
 import json
+import warnings
 
 # Add project root to Python path
 project_root = Path(__file__).parent.parent.resolve()
@@ -37,6 +43,10 @@ except ImportError:
     print("Error: Required packages not installed")
     print("Install with: pip install pymongo pandas")
     sys.exit(1)
+
+# Suppress CosmosDB compatibility warnings from pymongo
+# These are informational only - the code already handles CosmosDB requirements
+warnings.filterwarnings('ignore', message='.*CosmosDB.*', category=UserWarning)
 
 
 def load_mongodb_config():
